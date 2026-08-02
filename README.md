@@ -1,0 +1,1 @@
+Frontend Repository for Mafia42 Leaderboard.
