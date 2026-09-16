@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
 import { useParams, useRouter } from "next/navigation";
 import HomeLink from "@/components/HomeLink";
+import Dropdown from "@/components/Dropdown";
 
 interface EventItem {
   id: number;
@@ -161,53 +162,31 @@ export default function EventPage() {
 
         {/* Event Selector */}
         <div className="mt-10">
-          <label
-            htmlFor="event"
-            className="mb-2 block text-sm text-gray-500"
-          >
-            Select Event
-          </label>
-
-          <select
-            id="event"
+          <Dropdown
+            label="Select Event"
             value={event.id}
-            onChange={(e) => {
-              router.push(`/events/${e.target.value}`);
-            }}
-            className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-black outline-none transition focus:border-black"
-          >
-            {events.map((item) => (
-              <option key={item.id} value={item.id}>
-                {item.name} ({item.year})
-              </option>
-            ))}
-          </select>
+            onChange={(value) => router.push(`/events/${value}`)}
+            options={events.map((item) => ({
+              label: `${item.name} (${item.year})`,
+              value: item.id,
+            }))}
+          />
         </div>
 
         {/* Box Selector */}
         <div className="mt-6">
-          <label
-            htmlFor="box"
-            className="mb-2 block text-sm text-gray-500"
-          >
-            Select Box
-          </label>
-
-          <select
-            id="box"
-            value={selectedBoxId ?? ""}
-            onChange={(e) => {
-              setSelectedBoxId(Number(e.target.value));
+          <Dropdown
+            label="Select Box"
+            value={selectedBoxId}
+            onChange={(value) => {
+              setSelectedBoxId(Number(value));
               setResult(null);
             }}
-            className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-black outline-none transition focus:border-black"
-          >
-            {event.boxes.map((box) => (
-              <option key={box.id} value={box.id}>
-                {box.name}
-              </option>
-            ))}
-          </select>
+            options={event.boxes.map((box) => ({
+              label: box.name,
+              value: box.id,
+            }))}
+          />
         </div>
 
         {error && (
