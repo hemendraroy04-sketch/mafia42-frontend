@@ -29,8 +29,9 @@ export default function EventPage() {
   const id = params.id;
 
   const [event, setEvent] = useState<Event | null>(null);
+  const [selectedBoxId, setSelectedBoxId] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
-  const [openingBox, setOpeningBox] = useState<number | null>(null);
+  const [openingBox, setOpeningBox] = useState(false);
   const [result, setResult] = useState<EventItem | null>(null);
   const [error, setError] = useState("");
 
@@ -38,7 +39,12 @@ export default function EventPage() {
     const fetchEvent = async () => {
       try {
         const data = await api<Event>(`/api/events/${id}`);
+
         setEvent(data);
+
+        if (data.boxes.length > 0) {
+          setSelectedBoxId(data.boxes[0].id);
+        }
       } catch {
         setError("Failed to load event");
       } finally {
@@ -49,14 +55,20 @@ export default function EventPage() {
     fetchEvent();
   }, [id]);
 
-  const openBox = async (boxId: number) => {
+  const selectedBox = event?.boxes.find(
+    (box) => box.id === selectedBoxId,
+  );
+
+  const openBox = async () => {
+    if (!selectedBox) return;
+
     try {
-      setOpeningBox(boxId);
+      setOpeningBox(true);
       setResult(null);
       setError("");
 
       const data = await api<{ item: EventItem }>(
-        `/api/events/${id}/boxes/${boxId}/open`,
+        `/api/events/${id}/boxes/${selectedBox.id}/open`,
         {
           method: "POST",
         },
@@ -66,7 +78,7 @@ export default function EventPage() {
     } catch {
       setError("Failed to open box");
     } finally {
-      setOpeningBox(null);
+      setOpeningBox(false);
     }
   };
 
@@ -92,15 +104,90 @@ export default function EventPage() {
 
   return (
     <main className="min-h-screen bg-black px-6 py-12 text-white">
-      <div className="mx-auto max-w-5xl">
+      <div className="mx-auto max-w-4xl">
         <h1 className="text-3xl font-bold">{event.name}</h1>
 
         <p className="mt-2 text-gray-400">{event.year}</p>
+
+        {/* Box Selector */}
+        <div className="mt-10">
+          <label
+            htmlFor="box"
+            className="mb-2 block text-sm text-gray-400"
+          >
+            Select Box
+          </label>
+
+          <select
+            id="box"
+            value={selectedBoxId ?? ""}
+            onChange={(e) => {
+              setSelectedBoxId(Number(e.target.value));
+              setResult(null);
+            }}
+            className="w-full rounded-lg border border-gray-800 bg-black px-4 py-3 text-white outline-none focus:border-gray-500"
+          >
+            {event.boxes.map((box) => (
+              <option key={box.id} value={box.id}>
+                {box.name}
+              </option>
+            ))}
+          </select>
+        </div>
 
         {error && (
           <p className="mt-6 text-red-400">{error}</p>
         )}
 
+        {/* Selected Box */}
+        {selectedBox && (
+          <div className="mt-8 rounded-xl border border-gray-800 p-6">
+            <div className="flex items-center justify-between">
+              <h2 className="text-xl font-semibold">
+                {selectedBox.name}
+              </h2>
+
+              <span className="text-sm text-gray-500">
+                {selectedBox.items.length} items
+              </span>
+            </div>
+
+            {/* Items */}
+            <div className="mt-6 space-y-3">
+              {selectedBox.items.map((item) => (
+                <div
+                  key={item.id}
+                  className="flex items-center justify-between rounded-lg border border-gray-800 p-3"
+                >
+                  <div className="flex items-center gap-3">
+                    <img
+                      src={item.image}
+                      alt={item.name}
+                      className="h-12 w-12 rounded-md object-contain"
+                    />
+
+                    <span>{item.name}</span>
+                  </div>
+
+                  <span className="text-sm text-gray-400">
+                    {item.probability}%
+                  </span>
+                </div>
+              ))}
+            </div>
+
+            {/* Open Button */}
+            <button
+              onClick={openBox}
+              disabled={openingBox}
+              className="mt-6 w-full rounded-lg bg-white px-4 py-3 font-semibold text-black transition hover:bg-gray-200 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {openingBox ? "Opening..." : "Open Box"}
+            </button>
+          </div>
+        )}
+
+        {/* Result */}
         {result && (
           <div className="mt-8 rounded-xl border border-gray-700 p-6">
             <p className="mb-4 text-sm text-gray-400">
@@ -126,31 +213,6 @@ export default function EventPage() {
             </div>
           </div>
         )}
-
-        <div className="mt-10 grid gap-6 sm:grid-cols-2">
-          {event.boxes.map((box) => (
-            <div
-              key={box.id}
-              className="rounded-xl border border-gray-800 p-6"
-            >
-              <h2 className="text-xl font-semibold">
-                {box.name}
-              </h2>
-
-              <p className="mt-2 text-sm text-gray-500">
-                {box.items.length} items
-              </p>
-
-              <button
-                onClick={() => openBox(box.id)}
-                disabled={openingBox !== null}
-                className="mt-6 w-full rounded-lg bg-white px-4 py-3 font-semibold text-black transition hover:bg-gray-200 disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                {openingBox === box.id ? "Opening..." : "Open Box"}
-              </button>
-            </div>
-          ))}
-        </div>
       </div>
     </main>
   );
