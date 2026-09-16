@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
 import { RPRankingResponse } from "@/types/rp";
+import Link from "next/link";
+import HomeLink from "@/components/HomeLink";
 
 export default function RPRankingPage() {
   const [data, setData] = useState<RPRankingResponse | null>(null);
@@ -43,6 +45,7 @@ export default function RPRankingPage() {
   return (
     <main className="min-h-screen bg-black px-6 py-12 text-white">
       <div className="mx-auto max-w-4xl">
+        <HomeLink />
         <h1 className="mb-2 text-3xl font-bold">RP Ranking</h1>
 
         {data?.date && (

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
 import { useParams } from "next/navigation";
+import HomeLink from "@/components/HomeLink";
 
 interface EventItem {
   id: number;
@@ -105,6 +106,7 @@ export default function EventPage() {
   return (
     <main className="min-h-screen bg-black px-6 py-12 text-white">
       <div className="mx-auto max-w-4xl">
+        <HomeLink />
         <h1 className="text-3xl font-bold">{event.name}</h1>
 
         <p className="mt-2 text-gray-400">{event.year}</p>

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { api } from "@/lib/api";
 import { Event, EventsResponse } from "@/types/event";
+import HomeLink from "@/components/HomeLink";
 
 export default function EventsPage() {
   const [events, setEvents] = useState<Event[]>([]);
@@ -44,6 +45,7 @@ export default function EventsPage() {
   return (
     <main className="min-h-screen bg-black px-6 py-12 text-white">
       <div className="mx-auto max-w-4xl">
+        <HomeLink />
         <h1 className="mb-2 text-3xl font-bold">
           Event Box Simulator
         </h1>
