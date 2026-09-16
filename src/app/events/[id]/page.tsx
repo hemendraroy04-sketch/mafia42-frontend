@@ -119,14 +119,14 @@ export default function EventPage() {
 
   if (loading) {
     return (
-      <main className="min-h-screen bg-black px-6 py-12 text-white">
+      <main className="min-h-screen bg-white px-6 py-12 text-black">
         <div className="mx-auto max-w-4xl">
         <HomeLink />
           <h1 className="text-3xl font-bold">
             Event Box Simulator
           </h1>
 
-          <p className="mt-8 text-gray-400">
+          <p className="mt-8 text-gray-500">
             Loading event...
           </p>
         </div>
@@ -136,14 +136,14 @@ export default function EventPage() {
 
   if (!event) {
     return (
-      <main className="min-h-screen bg-black px-6 py-12 text-white">
+      <main className="min-h-screen bg-white px-6 py-12 text-black">
         <div className="mx-auto max-w-4xl">
         <HomeLink />
           <h1 className="text-3xl font-bold">
             Event Box Simulator
           </h1>
 
-          <p className="mt-8 text-red-400">
+          <p className="mt-8 text-red-600">
             {error || "Event not found"}
           </p>
         </div>
@@ -152,7 +152,7 @@ export default function EventPage() {
   }
 
   return (
-    <main className="min-h-screen bg-black px-6 py-12 text-white">
+    <main className="min-h-screen bg-white px-6 py-12 text-black">
       <div className="mx-auto max-w-4xl">
         <HomeLink />
         <h1 className="text-3xl font-bold">
@@ -163,7 +163,7 @@ export default function EventPage() {
         <div className="mt-10">
           <label
             htmlFor="event"
-            className="mb-2 block text-sm text-gray-400"
+            className="mb-2 block text-sm text-gray-500"
           >
             Select Event
           </label>
@@ -174,7 +174,7 @@ export default function EventPage() {
             onChange={(e) => {
               router.push(`/events/${e.target.value}`);
             }}
-            className="w-full rounded-lg border border-gray-800 bg-black px-4 py-3 text-white outline-none focus:border-gray-500"
+            className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-black outline-none transition focus:border-black"
           >
             {events.map((item) => (
               <option key={item.id} value={item.id}>
@@ -188,7 +188,7 @@ export default function EventPage() {
         <div className="mt-6">
           <label
             htmlFor="box"
-            className="mb-2 block text-sm text-gray-400"
+            className="mb-2 block text-sm text-gray-500"
           >
             Select Box
           </label>
@@ -200,7 +200,7 @@ export default function EventPage() {
               setSelectedBoxId(Number(e.target.value));
               setResult(null);
             }}
-            className="w-full rounded-lg border border-gray-800 bg-black px-4 py-3 text-white outline-none focus:border-gray-500"
+            className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-black outline-none transition focus:border-black"
           >
             {event.boxes.map((box) => (
               <option key={box.id} value={box.id}>
@@ -211,13 +211,13 @@ export default function EventPage() {
         </div>
 
         {error && (
-          <p className="mt-6 text-red-400">
+          <p className="mt-6 text-red-600">
             {error}
           </p>
         )}
 
         {selectedBox && (
-        <div className="mt-8 rounded-xl border border-gray-800 p-6">
+        <div className="mt-8 rounded-xl border border-gray-300 p-6">
             <div className="flex items-center justify-between">
             <h2 className="text-xl font-semibold">
                 {selectedBox.name}
@@ -231,8 +231,8 @@ export default function EventPage() {
             {/* Result */}
             <div className="mt-6 h-[112px]">
             {result && (
-                <div className="h-full rounded-lg border border-gray-700 p-4">
-                <p className="mb-2 text-sm text-gray-400">
+                <div className="h-full rounded-lg border border-gray-300 p-4">
+                <p className="mb-2 text-sm text-gray-500">
                     You received
                 </p>
 
@@ -248,7 +248,7 @@ export default function EventPage() {
                         {result.name}
                     </h2>
 
-                    <p className="text-sm text-gray-400">
+                    <p className="text-sm text-gray-500">
                         {result.probability}%
                     </p>
                     </div>
@@ -261,7 +261,7 @@ export default function EventPage() {
             <button
             onClick={openBox}
             disabled={openingBox}
-            className="mt-6 w-full rounded-lg bg-white px-4 py-3 font-semibold text-black transition hover:bg-gray-200 disabled:cursor-not-allowed disabled:opacity-50"
+            className="mt-6 w-full rounded-lg bg-black px-4 py-3 font-semibold text-white transition hover:bg-gray-800 active:bg-gray-600 disabled:cursor-not-allowed disabled:opacity-50"
             >
             {openingBox ? "Opening..." : "Open Box"}
             </button>
@@ -271,7 +271,7 @@ export default function EventPage() {
             {selectedBox.items.map((item) => (
                 <div
                 key={item.id}
-                className="flex items-center justify-between rounded-lg border border-gray-800 p-3"
+                className="flex items-center justify-between rounded-lg border border-gray-300 p-3 transition hover:bg-gray-50 active:bg-gray-100"
                 >
                 <div className="flex items-center gap-3">
                     <img
@@ -283,7 +283,7 @@ export default function EventPage() {
                     <span>{item.name}</span>
                 </div>
 
-                <span className="text-sm text-gray-400">
+                <span className="text-sm text-gray-500">
                     {item.probability}%
                 </span>
                 </div>

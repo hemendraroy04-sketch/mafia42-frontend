@@ -28,7 +28,7 @@ export default function EventsPage() {
 
   if (loading) {
     return (
-      <main className="flex min-h-screen items-center justify-center bg-black text-white">
+      <main className="flex min-h-screen items-center justify-center bg-white text-black">
         Loading...
       </main>
     );
@@ -36,26 +36,26 @@ export default function EventsPage() {
 
   if (error) {
     return (
-      <main className="flex min-h-screen items-center justify-center bg-black text-white">
+      <main className="flex min-h-screen items-center justify-center bg-white text-black">
         {error}
       </main>
     );
   }
 
   return (
-    <main className="min-h-screen bg-black px-6 py-12 text-white">
+    <main className="min-h-screen bg-white px-6 py-12 text-black">
       <div className="mx-auto max-w-4xl">
         <HomeLink />
         <h1 className="mb-2 text-3xl font-bold">
           Event Box Simulator
         </h1>
 
-        <p className="mb-8 text-gray-400">
+        <p className="mb-8 text-gray-500">
           Select an event to continue.
         </p>
 
         {!events.length ? (
-          <p className="text-gray-400">
+          <p className="text-gray-500">
             No events available.
           </p>
         ) : (
@@ -64,13 +64,13 @@ export default function EventsPage() {
               <Link
                 key={event.id}
                 href={`/events/${event.id}`}
-                className="rounded-xl border border-gray-800 p-6 transition hover:border-gray-500 hover:bg-gray-900"
+                className="rounded-xl border border-gray-300 p-6 transition active:bg-gray-100 hover:border-gray-400 hover:bg-gray-50"
               >
                 <h2 className="text-xl font-semibold">
                   {event.name}
                 </h2>
 
-                <p className="mt-2 text-gray-400">
+                <p className="mt-2 text-gray-500">
                   {event.year}
                 </p>
               </Link>

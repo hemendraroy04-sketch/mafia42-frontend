@@ -32,7 +32,7 @@ export default function FameRankingPage() {
 
   if (loading) {
     return (
-      <main className="flex min-h-screen items-center justify-center bg-black text-white">
+      <main className="flex min-h-screen items-center justify-center bg-white text-black">
         Loading...
       </main>
     );
@@ -40,29 +40,29 @@ export default function FameRankingPage() {
 
   if (error) {
     return (
-      <main className="flex min-h-screen items-center justify-center bg-black text-white">
+      <main className="flex min-h-screen items-center justify-center bg-white text-black">
         {error}
       </main>
     );
   }
 
   return (
-    <main className="min-h-screen bg-black px-6 py-12 text-white">
+    <main className="min-h-screen bg-white px-6 py-12 text-black">
       <div className="mx-auto max-w-4xl">
         <HomeLink />
         <PageHeader title="Fame Ranking" date={data?.date} />
 
         {!data?.rankings.length ? (
-          <NoData />    
+          <NoData />
         ) : (
-          <div className="overflow-hidden rounded-xl border border-gray-800">
+          <div className="overflow-hidden rounded-xl border border-gray-300">
             {data.rankings.map((player) => (
               <div
                 key={player.id}
-                className="flex items-center justify-between border-b border-gray-800 px-6 py-4 last:border-b-0"
+                className="flex items-center justify-between border-b border-gray-300 px-6 py-4 transition last:border-b-0 hover:bg-gray-50 active:bg-gray-100"
               >
                 <div className="flex items-center gap-6">
-                  <span className="w-8 text-gray-400">
+                  <span className="w-8 text-gray-500">
                     #{player.rank}
                   </span>
 
