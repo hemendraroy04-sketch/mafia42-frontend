@@ -82,8 +82,8 @@ export default function Dropdown({
                     onChange(option.value);
                     setOpen(false);
                   }}
-                  className={`flex w-full items-center justify-between px-4 py-3 text-left transition hover:bg-gray-50 active:bg-gray-100 ${
-                    isSelected ? "bg-gray-50 font-medium" : ""
+                  className={`flex w-full items-center justify-between px-4 py-3 text-left transition hover:bg-gray-200 active:bg-gray-300 ${
+                    isSelected ? "bg-gray-300 font-medium" : ""
                   }`}
                 >
                   <span>{option.label}</span>

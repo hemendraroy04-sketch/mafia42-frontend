@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
 import { useParams, useRouter } from "next/navigation";
+import { Loader2 } from "lucide-react";
 import HomeLink from "@/components/HomeLink";
 import Dropdown from "@/components/Dropdown";
 
@@ -49,6 +50,7 @@ export default function EventPage() {
   const [loading, setLoading] = useState(true);
   const [openingBox, setOpeningBox] = useState(false);
   const [result, setResult] = useState<EventItem | null>(null);
+  const [resultKey, setResultKey] = useState(0);
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -103,14 +105,17 @@ export default function EventPage() {
       setResult(null);
       setError("");
 
-      const data = await api<{ item: EventItem }>(
-        `/api/events/${id}/boxes/${selectedBox.id}/open`,
-        {
-          method: "POST",
-        },
-      );
+      // small artificial delay so the spinner is visible even on fast responses
+      const [data] = await Promise.all([
+        api<{ item: EventItem }>(
+          `/api/events/${id}/boxes/${selectedBox.id}/open`,
+          { method: "POST" },
+        ),
+        new Promise((resolve) => setTimeout(resolve, 500)),
+      ]);
 
       setResult(data.item);
+      setResultKey((key) => key + 1);
     } catch {
       setError("Failed to open box");
     } finally {
@@ -210,7 +215,10 @@ export default function EventPage() {
             {/* Result */}
             <div className="mt-6 h-[112px]">
             {result && (
-                <div className="h-full rounded-lg border border-gray-300 p-4">
+                <div
+                key={resultKey}
+                className="reveal-pop h-full rounded-lg border border-gray-300 p-4"
+                >
                 <p className="mb-2 text-sm text-gray-500">
                     You received
                 </p>
@@ -240,8 +248,9 @@ export default function EventPage() {
             <button
             onClick={openBox}
             disabled={openingBox}
-            className="mt-6 w-full rounded-lg bg-black px-4 py-3 font-semibold text-white transition hover:bg-gray-800 active:bg-gray-600 disabled:cursor-not-allowed disabled:opacity-50"
+            className="mt-6 flex w-full items-center justify-center gap-2 rounded-lg bg-black px-4 py-3 font-semibold text-white transition hover:bg-gray-800 active:scale-[0.98] active:bg-gray-600 disabled:cursor-not-allowed disabled:opacity-50"
             >
+            {openingBox && <Loader2 size={18} className="animate-spin" />}
             {openingBox ? "Opening..." : "Open Box"}
             </button>
 
@@ -271,6 +280,27 @@ export default function EventPage() {
         </div>
         )}
       </div>
+
+      <style jsx global>{`
+        @keyframes reveal-pop {
+          0% {
+            opacity: 0;
+            transform: scale(0.85) translateY(8px);
+          }
+          60% {
+            opacity: 1;
+            transform: scale(1.03) translateY(0);
+          }
+          100% {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+          }
+        }
+
+        .reveal-pop {
+          animation: reveal-pop 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+      `}</style>
     </main>
   );
 }
