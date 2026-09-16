@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
 import { GuildRankingResponse } from "@/types/guild";
 import HomeLink from "@/components/HomeLink";
+import PageHeader from "@/components/PageHeader";
+import NoData from "@/components/NoData";
 
 export default function GuildRankingPage() {
   const [data, setData] = useState<GuildRankingResponse | null>(null);
@@ -48,7 +50,7 @@ export default function GuildRankingPage() {
     <main className="min-h-screen bg-black px-6 py-12 text-white">
       <div className="mx-auto max-w-4xl">
         <HomeLink />
-        <h1 className="mb-2 text-3xl font-bold">Guild Ranking</h1>
+        <PageHeader title="Guild Ranking" date={data?.date} />
 
         {data?.date && (
           <p className="mb-8 text-gray-400">
@@ -57,9 +59,7 @@ export default function GuildRankingPage() {
         )}
 
         {!data?.rankings.length ? (
-          <p className="text-gray-400">
-            No ranking data available.
-          </p>
+          <NoData />
         ) : (
           <div className="overflow-hidden rounded-xl border border-gray-800">
             {data.rankings.map((guild) => (

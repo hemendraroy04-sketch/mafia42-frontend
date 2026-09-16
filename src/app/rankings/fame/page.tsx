@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
 import { FameRankingResponse } from "@/types/fame";
 import HomeLink from "@/components/HomeLink";
+import PageHeader from "@/components/PageHeader";
+import NoData from "@/components/NoData";
 
 export default function FameRankingPage() {
   const [data, setData] = useState<FameRankingResponse | null>(null);
@@ -48,18 +50,10 @@ export default function FameRankingPage() {
     <main className="min-h-screen bg-black px-6 py-12 text-white">
       <div className="mx-auto max-w-4xl">
         <HomeLink />
-        <h1 className="mb-2 text-3xl font-bold">Fame Ranking</h1>
-
-        {data?.date && (
-          <p className="mb-8 text-gray-400">
-            Date: {new Date(data.date).toLocaleDateString()}
-          </p>
-        )}
+        <PageHeader title="Fame Ranking" date={data?.date} />
 
         {!data?.rankings.length ? (
-          <p className="text-gray-400">
-            No ranking data available.
-          </p>
+          <NoData />    
         ) : (
           <div className="overflow-hidden rounded-xl border border-gray-800">
             {data.rankings.map((player) => (
