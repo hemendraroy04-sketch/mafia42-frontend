@@ -6,36 +6,12 @@ import { useParams, useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import HomeLink from "@/components/HomeLink";
 import Dropdown from "@/components/Dropdown";
-
-interface EventItem {
-  id: number;
-  name: string;
-  image: string;
-  probability: number;
-}
-
-interface EventBox {
-  id: number;
-  name: string;
-  items: EventItem[];
-}
-
-interface Event {
-  id: number;
-  name: string;
-  year: number;
-  boxes: EventBox[];
-}
-
-interface EventListItem {
-  id: number;
-  name: string;
-  year: number;
-}
-
-interface EventsResponse {
-  events: EventListItem[];
-}
+import {
+  Event,
+  EventItem,
+  EventListItem,
+  EventsResponse,
+} from "@/types/event";
 
 export default function EventPage() {
   const params = useParams();
@@ -178,7 +154,7 @@ export default function EventPage() {
             value={event.id}
             onChange={(value) => router.push(`/events/${value}`)}
             options={events.map((item) => ({
-              label: `${item.name} (${item.year})`,
+              label: `${item.name} (${item.month}/${item.year})`,
               value: item.id,
             }))}
           />

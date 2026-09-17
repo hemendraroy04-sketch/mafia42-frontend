@@ -3,11 +3,12 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { api } from "@/lib/api";
-import { Event, EventsResponse } from "@/types/event";
+import { EventListItem, EventsResponse } from "@/types/event";
 import HomeLink from "@/components/HomeLink";
+import Image from "next/image";
 
 export default function EventsPage() {
-  const [events, setEvents] = useState<Event[]>([]);
+  const [events, setEvents] = useState<EventListItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -46,6 +47,7 @@ export default function EventsPage() {
     <main className="min-h-screen bg-white px-6 py-12 text-black">
       <div className="mx-auto max-w-4xl">
         <HomeLink />
+
         <h1 className="mb-2 text-3xl font-bold">
           Event Box Simulator
         </h1>
@@ -64,15 +66,27 @@ export default function EventsPage() {
               <Link
                 key={event.id}
                 href={`/events/${event.id}`}
-                className="rounded-xl border border-gray-300 p-6 transition active:bg-gray-100 hover:border-gray-400 hover:bg-gray-50"
+                className="overflow-hidden rounded-xl border border-gray-300 transition hover:border-gray-400 hover:bg-gray-50 active:bg-gray-100"
               >
-                <h2 className="text-xl font-semibold">
-                  {event.name}
-                </h2>
+                <div className="relative h-48 border-b border-gray-200">
+                  <Image
+                    src={event.image}
+                    alt={event.name}
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 640px) 100vw, 50vw"
+                  />
+                </div>
 
-                <p className="mt-2 text-gray-500">
-                  {event.year}
-                </p>
+                <div className="p-6">
+                  <h2 className="text-xl font-semibold">
+                    {event.name}
+                  </h2>
+
+                  <p className="mt-2 text-gray-500">
+                    {event.month}/{event.year}
+                  </p>
+                </div>
               </Link>
             ))}
           </div>
