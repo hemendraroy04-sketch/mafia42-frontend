@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
 import { useParams, useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
+import Image from "next/image";
 import HomeLink from "@/components/HomeLink";
 import Dropdown from "@/components/Dropdown";
 import {
@@ -195,7 +196,7 @@ export default function EventPage() {
             </div>
 
             {/* Result */}
-            <div className="mt-6 h-[112px]">
+            <div className="mt-6 h-28">
             {result && (
                 <div
                 key={resultKey}
@@ -206,23 +207,27 @@ export default function EventPage() {
                 </p>
 
                 <div className="flex items-center gap-4">
-                    <img
-                    src={result.image}
-                    alt={result.name}
-                    className="h-14 w-14 rounded-lg object-contain"
+                  <div className="relative h-14 w-14 shrink-0">
+                    <Image
+                      src={result.image}
+                      alt={result.name}
+                      fill
+                      className="rounded-lg object-contain"
+                      sizes="56px"
                     />
+                  </div>
 
-                    <div>
+                  <div>
                     <h2 className="font-semibold">
-                        {result.name}
+                      {result.name}
                     </h2>
 
                     <p className="text-sm text-gray-500">
-                        {result.probability}%
+                      {result.probability}%
                     </p>
-                    </div>
+                  </div>
                 </div>
-                </div>
+              </div>
             )}
             </div>
 
@@ -244,11 +249,15 @@ export default function EventPage() {
                 className="flex items-center justify-between rounded-lg border border-gray-300 p-3 transition hover:bg-gray-50 active:bg-gray-100"
                 >
                 <div className="flex items-center gap-3">
-                    <img
-                    src={item.image}
-                    alt={item.name}
-                    className="h-12 w-12 rounded-md object-contain"
+                    <div className="relative h-12 w-12">
+                    <Image
+                      src={item.image}
+                      alt={item.name}
+                      fill
+                      className="rounded-md object-contain"
+                      sizes="48px"
                     />
+                  </div>
 
                     <span>{item.name}</span>
                 </div>
