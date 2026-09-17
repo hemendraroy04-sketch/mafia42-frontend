@@ -97,30 +97,36 @@ export default function EventPage() {
     (box) => box.id === selectedBoxId,
   );
 
-  const openBox = async () => {
-    if (!selectedBox) return;
+  const openBox = () => {
+    if (!selectedBox || selectedBox.items.length === 0) return;
 
-    try {
-      setOpeningBox(true);
-      setResult(null);
-      setError("");
+    setOpeningBox(true);
+    setResult(null);
+    setError("");
 
-      // small artificial delay so the spinner is visible even on fast responses
-      const [data] = await Promise.all([
-        api<{ item: EventItem }>(
-          `/api/events/${id}/boxes/${selectedBox.id}/open`,
-          { method: "POST" },
-        ),
-        new Promise((resolve) => setTimeout(resolve, 500)),
-      ]);
+    // Keep the spinner visible for 500ms
+    setTimeout(() => {
+      const totalProbability = selectedBox.items.reduce(
+        (sum, item) => sum + item.probability,
+        0,
+      );
 
-      setResult(data.item);
-      setResultKey((key) => key + 1);
-    } catch {
-      setError("Failed to open box");
-    } finally {
+      const random = Math.random() * totalProbability;
+
+      let cumulativeProbability = 0;
+
+      for (const item of selectedBox.items) {
+        cumulativeProbability += item.probability;
+
+        if (random < cumulativeProbability) {
+          setResult(item);
+          setResultKey((key) => key + 1);
+          break;
+        }
+      }
+
       setOpeningBox(false);
-    }
+    }, 500);
   };
 
   if (loading) {
