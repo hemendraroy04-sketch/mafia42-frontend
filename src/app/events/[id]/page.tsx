@@ -1,140 +1,50 @@
-"use client";
-
-import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
-import { useParams, useRouter } from "next/navigation";
-import { Loader2 } from "lucide-react";
-import Image from "next/image";
 import HomeLink from "@/components/HomeLink";
-import Dropdown from "@/components/Dropdown";
-import {
-  Event,
-  EventItem,
-  EventListItem,
-  EventsResponse,
-} from "@/types/event";
+import EventBoxClient from "./EventBoxClient";
+import { Event, EventsResponse } from "@/types/event";
 
-export default function EventPage() {
-  const params = useParams();
-  const router = useRouter();
+// Revalidate this route's data at most once a minute (ISR-style).
+// Adjust or remove if your event data changes more/less often.
+export const revalidate = 60;
 
-  const id = Number(params.id);
+interface EventPageProps {
+  params: Promise<{ id: string }>;
+}
 
-  const [events, setEvents] = useState<EventListItem[]>([]);
-  const [event, setEvent] = useState<Event | null>(null);
-  const [selectedBoxId, setSelectedBoxId] = useState<number | null>(null);
+export default async function EventPage({ params }: EventPageProps) {
+  const { id } = await params;
+  const eventId = Number(id);
 
-  const [loading, setLoading] = useState(true);
-  const [openingBox, setOpeningBox] = useState(false);
-  const [result, setResult] = useState<EventItem | null>(null);
-  const [resultKey, setResultKey] = useState(0);
-  const [error, setError] = useState("");
-
-  useEffect(() => {
-    const fetchEvents = async () => {
-      try {
-        const data = await api<EventsResponse>("/api/events");
-        setEvents(data.events);
-      } catch {
-        setError("Failed to load events");
-      }
-    };
-
-    fetchEvents();
-  }, []);
-
-  useEffect(() => {
-    const fetchEvent = async () => {
-      try {
-        setLoading(true);
-        setError("");
-        setResult(null);
-
-        const data = await api<Event>(`/api/events/${id}`);
-
-        setEvent(data);
-
-        setSelectedBoxId(
-          data.boxes.length > 0 ? data.boxes[0].id : null,
-        );
-      } catch {
-        setEvent(null);
-        setError("Failed to load event");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (!Number.isNaN(id)) {
-      fetchEvent();
-    }
-  }, [id]);
-
-  const selectedBox = event?.boxes.find(
-    (box) => box.id === selectedBoxId,
-  );
-
-  const openBox = () => {
-    if (!selectedBox || selectedBox.items.length === 0) return;
-
-    setOpeningBox(true);
-    setResult(null);
-    setError("");
-
-    // Keep the spinner visible for 500ms
-    setTimeout(() => {
-      const totalProbability = selectedBox.items.reduce(
-        (sum, item) => sum + item.probability,
-        0,
-      );
-
-      const random = Math.random() * totalProbability;
-
-      let cumulativeProbability = 0;
-
-      for (const item of selectedBox.items) {
-        cumulativeProbability += item.probability;
-
-        if (random < cumulativeProbability) {
-          setResult(item);
-          setResultKey((key) => key + 1);
-          break;
-        }
-      }
-
-      setOpeningBox(false);
-    }, 500);
-  };
-
-  if (loading) {
+  if (Number.isNaN(eventId)) {
     return (
       <main className="min-h-screen bg-white px-6 py-12 text-black">
         <div className="mx-auto max-w-4xl">
-        <HomeLink />
-          <h1 className="text-3xl font-bold">
-            Event Box Simulator
-          </h1>
-
-          <p className="mt-8 text-gray-500">
-            Loading event...
-          </p>
+          <HomeLink />
+          <h1 className="text-3xl font-bold">Event Box Simulator</h1>
+          <p className="mt-8 text-red-600">Event not found</p>
         </div>
       </main>
     );
   }
 
+  // Fetch the events list (for the dropdown) and the current event's
+  // detail in parallel, on the server, before any HTML is sent.
+  const [eventsData, event] = await Promise.all([
+    api<EventsResponse>("/api/events", {
+      next: { revalidate: 300 },
+    } as RequestInit),
+    api<Event>(`/api/events/${eventId}`, {
+      next: { revalidate: 60 },
+    } as RequestInit).catch(() => null),
+  ]);
+
   if (!event) {
     return (
       <main className="min-h-screen bg-white px-6 py-12 text-black">
         <div className="mx-auto max-w-4xl">
-        <HomeLink />
-          <h1 className="text-3xl font-bold">
-            Event Box Simulator
-          </h1>
-
-          <p className="mt-8 text-red-600">
-            {error || "Event not found"}
-          </p>
+          <HomeLink />
+          <h1 className="text-3xl font-bold">Event Box Simulator</h1>
+          <p className="mt-8 text-red-600">Event not found</p>
         </div>
       </main>
     );
@@ -144,154 +54,15 @@ export default function EventPage() {
     <main className="min-h-screen bg-white px-6 py-12 text-black">
       <div className="mx-auto max-w-4xl">
         <HomeLink />
-        <h1 className="text-3xl font-bold">
-          Event Box Simulator
-        </h1>
 
-        {/* Event Selector */}
-        <div className="mt-10">
-          <Dropdown
-            label="Select Event"
-            value={event.id}
-            onChange={(value) => router.push(`/events/${value}`)}
-            options={events.map((item) => ({
-              label: `${item.name} (${item.month}/${item.year})`,
-              value: item.id,
-            }))}
-          />
-        </div>
+        <h1 className="text-3xl font-bold">Event Box Simulator</h1>
 
-        {/* Box Selector */}
-        <div className="mt-6">
-          <Dropdown
-            label="Select Box"
-            value={selectedBoxId}
-            onChange={(value) => {
-              setSelectedBoxId(Number(value));
-              setResult(null);
-            }}
-            options={event.boxes.map((box) => ({
-              label: box.name,
-              value: box.id,
-            }))}
-          />
-        </div>
-
-        {error && (
-          <p className="mt-6 text-red-600">
-            {error}
-          </p>
-        )}
-
-        {selectedBox && (
-        <div className="mt-8 rounded-xl border border-gray-300 p-6">
-            <div className="flex items-center justify-between">
-            <h2 className="text-xl font-semibold">
-                {selectedBox.name}
-            </h2>
-
-            <span className="text-sm text-gray-500">
-                {selectedBox.items.length} items
-            </span>
-            </div>
-
-            {/* Result */}
-            <div className="mt-6 h-28">
-            {result && (
-                <div
-                key={resultKey}
-                className="reveal-pop h-full rounded-lg border border-gray-300 p-4"
-                >
-                <p className="mb-2 text-sm text-gray-500">
-                    You received
-                </p>
-
-                <div className="flex items-center gap-4">
-                  <div className="relative h-14 w-14 shrink-0">
-                    <Image
-                      src={result.image}
-                      alt={result.name}
-                      fill
-                      className="rounded-lg object-contain"
-                      sizes="56px"
-                    />
-                  </div>
-
-                  <div>
-                    <h2 className="font-semibold">
-                      {result.name}
-                    </h2>
-
-                    <p className="text-sm text-gray-500">
-                      {result.probability}%
-                    </p>
-                  </div>
-                </div>
-              </div>
-            )}
-            </div>
-
-            {/* Open Box Button */}
-            <button
-            onClick={openBox}
-            disabled={openingBox}
-            className="mt-6 flex w-full items-center justify-center gap-2 rounded-lg bg-black px-4 py-3 font-semibold text-white transition hover:bg-gray-800 active:scale-[0.98] active:bg-gray-600 disabled:cursor-not-allowed disabled:opacity-50"
-            >
-            {openingBox && <Loader2 size={18} className="animate-spin" />}
-            {openingBox ? "Opening..." : "Open Box"}
-            </button>
-
-            {/* Items */}
-            <div className="mt-6 space-y-3">
-            {selectedBox.items.map((item) => (
-                <div
-                key={item.id}
-                className="flex items-center justify-between rounded-lg border border-gray-300 p-3 transition hover:bg-gray-50 active:bg-gray-100"
-                >
-                <div className="flex items-center gap-3">
-                    <div className="relative h-12 w-12">
-                    <Image
-                      src={item.image}
-                      alt={item.name}
-                      fill
-                      className="rounded-md object-contain"
-                      sizes="48px"
-                    />
-                  </div>
-
-                    <span>{item.name}</span>
-                </div>
-
-                <span className="text-sm text-gray-500">
-                    {item.probability}%
-                </span>
-                </div>
-            ))}
-            </div>
-        </div>
-        )}
+        <EventBoxClient
+          key={event.id}
+          events={eventsData.events}
+          event={event}
+        />
       </div>
-
-      <style jsx global>{`
-        @keyframes reveal-pop {
-          0% {
-            opacity: 0;
-            transform: scale(0.85) translateY(8px);
-          }
-          60% {
-            opacity: 1;
-            transform: scale(1.03) translateY(0);
-          }
-          100% {
-            opacity: 1;
-            transform: scale(1) translateY(0);
-          }
-        }
-
-        .reveal-pop {
-          animation: reveal-pop 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-      `}</style>
     </main>
   );
 }
