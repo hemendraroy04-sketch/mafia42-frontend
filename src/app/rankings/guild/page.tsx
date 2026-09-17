@@ -7,28 +7,69 @@ import HomeLink from "@/components/HomeLink";
 import PageHeader from "@/components/PageHeader";
 import NoData from "@/components/NoData";
 
+function formatDate(date: Date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
+}
+
 export default function GuildRankingPage() {
   const [data, setData] = useState<GuildRankingResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   useEffect(() => {
-    const fetchRanking = async () => {
+    let cancelled = false;
+
+    const loadRanking = async () => {
       try {
+        const dateString = formatDate(new Date());
+
         const result = await api<GuildRankingResponse>(
-          "/api/rankings/guild",
+          `/api/rankings/guild?date=${dateString}`,
         );
+
+        if (cancelled) return;
 
         setData(result);
       } catch {
+        if (cancelled) return;
+
         setError("Failed to load Guild ranking");
       } finally {
-        setLoading(false);
+        if (!cancelled) {
+          setLoading(false);
+        }
       }
     };
 
-    fetchRanking();
+    loadRanking();
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
+
+  const handleDateChange = async (date: Date) => {
+    try {
+      setLoading(true);
+      setError("");
+
+      const dateString = formatDate(date);
+
+      const result = await api<GuildRankingResponse>(
+        `/api/rankings/guild?date=${dateString}`,
+      );
+
+      setData(result);
+    } catch {
+      setError("Failed to load Guild ranking");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -50,13 +91,12 @@ export default function GuildRankingPage() {
     <main className="min-h-screen bg-white px-6 py-12 text-black">
       <div className="mx-auto max-w-4xl">
         <HomeLink />
-        <PageHeader title="Guild Ranking" date={data?.date} />
 
-        {data?.date && (
-          <p className="mb-8 text-gray-500">
-            Date: {new Date(data.date).toLocaleDateString()}
-          </p>
-        )}
+        <PageHeader
+          title="Guild Ranking"
+          date={data?.date}
+          onDateChange={handleDateChange}
+        />
 
         {!data?.rankings.length ? (
           <NoData />
@@ -73,9 +113,7 @@ export default function GuildRankingPage() {
                   </span>
 
                   <div>
-                    <p className="font-medium">
-                      {guild.guildName}
-                    </p>
+                    <p className="font-medium">{guild.guildName}</p>
 
                     <p className="text-sm text-gray-500">
                       {guild.guildId}

@@ -7,28 +7,69 @@ import HomeLink from "@/components/HomeLink";
 import PageHeader from "@/components/PageHeader";
 import NoData from "@/components/NoData";
 
+function formatDate(date: Date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
+}
+
 export default function FameRankingPage() {
   const [data, setData] = useState<FameRankingResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   useEffect(() => {
-    const fetchRanking = async () => {
+    let cancelled = false;
+
+    const loadRanking = async () => {
       try {
+        const dateString = formatDate(new Date());
+
         const result = await api<FameRankingResponse>(
-          "/api/rankings/fame",
+          `/api/rankings/fame?date=${dateString}`,
         );
+
+        if (cancelled) return;
 
         setData(result);
       } catch {
+        if (cancelled) return;
+
         setError("Failed to load Fame ranking");
       } finally {
-        setLoading(false);
+        if (!cancelled) {
+          setLoading(false);
+        }
       }
     };
 
-    fetchRanking();
+    loadRanking();
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
+
+  const handleDateChange = async (date: Date) => {
+    try {
+      setLoading(true);
+      setError("");
+
+      const dateString = formatDate(date);
+
+      const result = await api<FameRankingResponse>(
+        `/api/rankings/fame?date=${dateString}`,
+      );
+
+      setData(result);
+    } catch {
+      setError("Failed to load Fame ranking");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -50,7 +91,12 @@ export default function FameRankingPage() {
     <main className="min-h-screen bg-white px-6 py-12 text-black">
       <div className="mx-auto max-w-4xl">
         <HomeLink />
-        <PageHeader title="Fame Ranking" date={data?.date} />
+
+        <PageHeader
+          title="Fame Ranking"
+          date={data?.date}
+          onDateChange={handleDateChange}
+        />
 
         {!data?.rankings.length ? (
           <NoData />
@@ -67,9 +113,7 @@ export default function FameRankingPage() {
                   </span>
 
                   <div>
-                    <p className="font-medium">
-                      {player.playerName}
-                    </p>
+                    <p className="font-medium">{player.playerName}</p>
 
                     <p className="text-sm text-gray-500">
                       {player.playerId}
