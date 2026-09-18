@@ -26,6 +26,10 @@ export default function PageHeader({ title, date, onDateChange }: PageHeaderProp
 
         <div className="mt-2">
           <DatePicker value={selectedDate} onChange={handleDateChange} />
+
+          <p className="mt-2 text-sm text-gray-500">
+            Click the calendar to view rankings from previous days.
+          </p>
         </div>
       </div>
     </div>
