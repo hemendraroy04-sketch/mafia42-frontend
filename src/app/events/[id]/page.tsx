@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { api } from "@/lib/api";
 import HomeLink from "@/components/HomeLink";
 import EventBoxClient from "./EventBoxClient";
@@ -7,6 +8,41 @@ export const revalidate = 60;
 
 interface EventPageProps {
   params: Promise<{ id: string }>;
+}
+
+export async function generateMetadata({
+  params,
+}: EventPageProps): Promise<Metadata> {
+  const { id } = await params;
+  const eventId = Number(id);
+
+  if (Number.isNaN(eventId)) {
+    return {
+      title: "Event Not Found | Mafia42",
+      description: "The requested Mafia42 event could not be found.",
+    };
+  }
+
+  try {
+    const event = await api<Event>(`/api/events/${eventId}`, {
+      next: { revalidate: 60 },
+    } as RequestInit);
+
+    return {
+      title: `${event.name} | Mafia42`,
+      description: `Explore the Mafia42 ${event.name} event, including its Event Boxes, items, and drop probabilities.`,
+      openGraph: {
+        title: `${event.name} | Mafia42`,
+        description: `Explore the Mafia42 ${event.name} event, including its Event Boxes, items, and drop probabilities.`,
+        images: event.image ? [event.image] : undefined,
+      },
+    };
+  } catch {
+    return {
+      title: "Event Not Found | Mafia42",
+      description: "The requested Mafia42 event could not be found.",
+    };
+  }
 }
 
 export default async function EventPage({ params }: EventPageProps) {
