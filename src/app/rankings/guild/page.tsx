@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
+import { Globe2 } from "lucide-react";
 import { api } from "@/lib/api";
 import { GuildRankingResponse } from "@/types/guild";
 import HomeLink from "@/components/HomeLink";
@@ -25,10 +27,8 @@ export default function GuildRankingPage() {
 
     const loadRanking = async () => {
       try {
-        const dateString = formatDate(new Date());
-
         const result = await api<GuildRankingResponse>(
-          `/api/rankings/guild?date=${dateString}`,
+          "/api/rankings/guild",
         );
 
         if (cancelled) return;
@@ -112,12 +112,22 @@ export default function GuildRankingPage() {
                     #{guild.rank}
                   </span>
 
-                  <div>
-                    <p className="font-medium">{guild.guildName}</p>
+                  <div className="flex items-center gap-3">
+                    <div className="relative h-7 w-7 shrink-0 overflow-hidden rounded-full border border-gray-200">
+                      {guild.guild.country.toLowerCase() === "none" ? (
+                        <Globe2 className="h-full w-full p-1.5 text-gray-500" />
+                      ) : (
+                        <Image
+                          src={`https://flagcdn.com/w80/${guild.guild.country.toLowerCase()}.png`}
+                          alt={guild.guild.country}
+                          fill
+                          sizes="28px"
+                          className="object-cover"
+                        />
+                      )}
+                    </div>
 
-                    <p className="text-sm text-gray-500">
-                      {guild.guildId}
-                    </p>
+                    <p className="font-medium">{guild.guild.name}</p>
                   </div>
                 </div>
 

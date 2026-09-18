@@ -70,7 +70,7 @@ function buildMonthGrid(viewDate: Date): (Date | null)[] {
   return cells;
 }
 
-const DEFAULT_MIN_SELECTABLE_DATE = new Date(2026, 8, 16); // Sept 16, 2026
+const DEFAULT_MIN_SELECTABLE_DATE = new Date(2026, 8, 17); // Sept 16, 2026
 
 export default function DatePicker({
   value,

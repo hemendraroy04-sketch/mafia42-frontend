@@ -2,9 +2,13 @@ export interface RPPlayer {
   id: number;
   date: string;
   rank: number;
-  playerId: string;
-  playerName: string;
+  playerId: number;
   rp: number;
+  player: {
+    id: number;
+    name: string;
+    country: string;
+  };
 }
 
 export interface RPRankingResponse {

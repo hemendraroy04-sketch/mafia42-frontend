@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
+import { Globe2 } from "lucide-react";
 import { api } from "@/lib/api";
 import { RPRankingResponse } from "@/types/rp";
 import HomeLink from "@/components/HomeLink";
@@ -25,10 +27,8 @@ export default function RPRankingPage() {
 
     const loadRanking = async () => {
       try {
-        const dateString = formatDate(new Date());
-
         const result = await api<RPRankingResponse>(
-          `/api/rankings/rp?date=${dateString}`,
+          "/api/rankings/rp",
         );
 
         if (cancelled) return;
@@ -112,12 +112,22 @@ export default function RPRankingPage() {
                     #{player.rank}
                   </span>
 
-                  <div>
-                    <p className="font-medium">{player.playerName}</p>
+                  <div className="flex items-center gap-3">
+                    <div className="relative h-7 w-7 shrink-0 overflow-hidden rounded-full border border-gray-200">
+                      {player.player.country.toLowerCase() === "none" ? (
+                        <Globe2 className="h-full w-full p-1.5 text-gray-500" />
+                      ) : (
+                        <Image
+                          src={`https://flagcdn.com/w80/${player.player.country.toLowerCase()}.png`}
+                          alt={player.player.country}
+                          fill
+                          sizes="28px"
+                          className="object-cover"
+                        />
+                      )}
+                    </div>
 
-                    <p className="text-sm text-gray-500">
-                      {player.playerId}
-                    </p>
+                    <p className="font-medium">{player.player.name}</p>
                   </div>
                 </div>
 
