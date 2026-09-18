@@ -5,6 +5,7 @@ import PageHeader from "@/components/PageHeader";
 import NoData from "@/components/NoData";
 import FullPageMessage from "@/components/FullPageMessage";
 import RankingRow from "@/components/RankingRow";
+import RankingSkeleton from "@/components/RankingSkeleton";
 import { useRanking } from "@/hooks/useRanking";
 import type { BaseRankingResponse, RankingRowData } from "@/types/ranking";
 
@@ -27,11 +28,38 @@ export default function RankingPage<TResponse extends BaseRankingResponse>({
     errorMessage,
   );
 
-  if (loading) return <FullPageMessage>Loading...</FullPageMessage>;
-  if (error) return <FullPageMessage>{error}</FullPageMessage>;
+  // Only the very first load takes over the screen. After that the header
+  // stays mounted, so changing the date never blanks the page or drops focus.
+  if (loading && !data) return <FullPageMessage>Loading...</FullPageMessage>;
+
+  let content;
+
+  if (loading) {
+    content = <RankingSkeleton />;
+  } else if (error) {
+    content = (
+      <p
+        role="alert"
+        className="rounded-xl border border-gray-300 px-6 py-10 text-center text-gray-600"
+      >
+        {error}
+      </p>
+    );
+  } else if (!data?.rankings.length) {
+    content = <NoData />;
+  } else {
+    content = (
+      <div className="overflow-hidden rounded-xl border border-gray-300">
+        {data.rankings.map((entry) => {
+          const { id, ...row } = toRow(entry);
+          return <RankingRow key={id} {...row} />;
+        })}
+      </div>
+    );
+  }
 
   return (
-    <main className="min-h-screen bg-white px-6 py-12 text-black">
+    <main className="min-h-screen bg-white px-4 py-8 text-black sm:px-6 sm:py-12">
       <div className="mx-auto max-w-4xl">
         <HomeLink />
 
@@ -41,16 +69,7 @@ export default function RankingPage<TResponse extends BaseRankingResponse>({
           onDateChange={loadForDate}
         />
 
-        {!data?.rankings.length ? (
-          <NoData />
-        ) : (
-          <div className="overflow-hidden rounded-xl border border-gray-300">
-            {data.rankings.map((entry) => {
-              const { id, ...row } = toRow(entry);
-              return <RankingRow key={id} {...row} />;
-            })}
-          </div>
-        )}
+        {content}
       </div>
     </main>
   );
