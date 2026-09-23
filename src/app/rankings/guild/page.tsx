@@ -16,6 +16,7 @@ export default function GuildRankingPage() {
         name: entry.guild.name,
         country: entry.guild.country,
         score: formatScore(entry.gp, "GP"),
+        change: entry.change,
       })}
     />
   );

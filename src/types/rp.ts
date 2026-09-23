@@ -4,6 +4,7 @@ export interface RPPlayer {
   rank: number;
   playerId: number;
   rp: number;
+  change?: number | null;
   player: {
     id: number;
     name: string;

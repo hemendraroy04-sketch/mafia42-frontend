@@ -4,6 +4,7 @@ export interface FamePlayer {
   rank: number;
   playerId: number;
   fame: number;
+  change?: number | null;
   player: {
     id: number;
     name: string;

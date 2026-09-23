@@ -4,6 +4,7 @@ export interface Guild {
   rank: number;
   guildId: number;
   gp: number;
+  change?: number | null;
   guild: {
     id: number;
     name: string;

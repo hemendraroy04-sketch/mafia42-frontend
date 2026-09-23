@@ -8,6 +8,7 @@ export default function RankingRow({
   name,
   country,
   score,
+  change,
 }: RankingRowProps) {
   return (
     <div className="flex items-center justify-between gap-4 border-b border-gray-300 px-4 py-3 transition last:border-b-0 hover:bg-gray-50 active:bg-gray-100 sm:px-6 sm:py-4">
@@ -22,7 +23,33 @@ export default function RankingRow({
         </div>
       </div>
 
-      <span className="shrink-0 font-semibold tabular-nums">{score}</span>
+      <div className="flex shrink-0 items-center">
+        <span className="font-semibold tabular-nums">{score}</span>
+
+        <div className="w-12 text-right">
+          {change !== undefined && (
+            <>
+              {change === null ? (
+                <span className="text-sm font-medium text-blue-600">
+                  (New)
+                </span>
+              ) : change > 0 ? (
+                <span className="text-sm font-medium text-green-600 tabular-nums">
+                  (+{change.toLocaleString()})
+                </span>
+              ) : change < 0 ? (
+                <span className="text-sm font-medium text-red-600 tabular-nums">
+                  ({change.toLocaleString()})
+                </span>
+              ) : (
+                <span className="text-sm font-medium text-gray-500 tabular-nums">
+                  (0)
+                </span>
+              )}
+            </>
+          )}
+        </div>
+      </div>
     </div>
   );
 }

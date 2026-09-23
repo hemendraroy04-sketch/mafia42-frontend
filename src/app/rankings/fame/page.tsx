@@ -16,6 +16,7 @@ export default function FameRankingPage() {
         name: entry.player.name,
         country: entry.player.country,
         score: formatScore(entry.fame, "Fame"),
+        change: entry.change,
       })}
     />
   );

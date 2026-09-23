@@ -4,11 +4,6 @@ import { useCallback, useEffect, useState } from "react";
 import { api } from "@/lib/api";
 import { formatDate } from "@/utils/dateFormatting";
 
-/**
- * Loads a ranking endpoint. The selected date is state, and the effect
- * re-fetches whenever it changes, so there is a single fetch code path.
- * Stale responses are ignored via the effect's cleanup.
- */
 export function useRanking<T>(endpoint: string, errorMessage: string) {
   const [date, setDate] = useState<Date>();
   const [data, setData] = useState<T | null>(null);

@@ -16,6 +16,7 @@ export default function RPRankingPage() {
         name: entry.player.name,
         country: entry.player.country,
         score: formatScore(entry.rp, "RP"),
+        change: entry.change,
       })}
     />
   );

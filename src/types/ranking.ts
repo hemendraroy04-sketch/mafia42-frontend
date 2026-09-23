@@ -16,4 +16,5 @@ export interface RankingRowData {
   name: string;
   country: string;
   score: string;
+  change?: number | null;
 }
