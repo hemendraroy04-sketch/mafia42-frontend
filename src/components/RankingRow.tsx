@@ -26,7 +26,7 @@ export default function RankingRow({
       <div className="flex shrink-0 items-center">
         <span className="font-semibold tabular-nums">{score}</span>
 
-        <div className="w-12 text-right">
+        <div className="w-12 text-center">
           {change !== undefined && (
             <>
               {change === null ? (
