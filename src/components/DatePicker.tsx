@@ -6,18 +6,7 @@ import { Calendar as CalendarIcon, ChevronLeft, ChevronRight } from "lucide-reac
 interface DatePickerProps {
   value: Date | null;
   onChange: (date: Date) => void;
-  /**
-   * Dates strictly before this date are shown grayed-out and are not
-   * clickable (used to signal "no data available before this date").
-   * Defaults to Sept 16, 2026 per current requirement — pass your own
-   * to make this dynamic (e.g. driven by an API's earliest-data date).
-   */
   minSelectableDate?: Date;
-  /**
-   * Dates strictly after this date are shown grayed-out and are not
-   * clickable. Defaults to today, so future dates can't be picked.
-   * Pass a later date (or a far-future one) to relax this.
-   */
   maxSelectableDate?: Date;
   className?: string;
 }
@@ -150,7 +139,7 @@ export default function DatePicker({
 
       {/* Popover */}
       {open && (
-        <div className="absolute z-20 mt-2 w-80 rounded-2xl border border-gray-200 bg-white p-5 shadow-xl">
+        <div className="fixed left-1/2 top-1/2 z-50 w-[calc(100vw-2rem)] max-w-80 -translate-x-1/2 -translate-y-1/2 rounded-2xl border border-gray-200 bg-white p-5 shadow-xl">
           {/* Month header */}
           <div className="flex items-center justify-between">
             <button
