@@ -10,11 +10,10 @@ export default function CountryFlag({ country }: { country: string }) {
         <Globe2 className="h-full w-full p-1.5 text-gray-500" />
       ) : (
         <Image
-          src={`https://flagcdn.com/w80/${code}.png`}
+          src={`https://hatscripts.github.io/circle-flags/flags/${code}.svg`}
           alt={country}
           fill
           sizes="28px"
-          className="object-cover"
         />
       )}
     </div>
