@@ -10,8 +10,11 @@ export default function FameRankingPage() {
       title="Fame Ranking"
       endpoint="/api/rankings/fame"
       errorMessage="Failed to load Fame ranking"
+      detailType="player"
+      detailMode="fame"
       toRow={(entry) => ({
         id: entry.id,
+        detailId: entry.playerId,
         rank: entry.rank,
         name: entry.player.name,
         country: entry.player.country,

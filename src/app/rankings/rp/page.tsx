@@ -10,8 +10,11 @@ export default function RPRankingPage() {
       title="RP Ranking"
       endpoint="/api/rankings/rp"
       errorMessage="Failed to load RP ranking"
+      detailType="player"
+      detailMode="rp"
       toRow={(entry) => ({
         id: entry.id,
+        detailId: entry.playerId,
         rank: entry.rank,
         name: entry.player.name,
         country: entry.player.country,

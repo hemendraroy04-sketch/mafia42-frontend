@@ -10,8 +10,10 @@ export default function GuildRankingPage() {
       title="Guild Ranking"
       endpoint="/api/rankings/guild"
       errorMessage="Failed to load Guild ranking"
+      detailType="guild"
       toRow={(entry) => ({
         id: entry.id,
+        detailId: entry.guildId,
         rank: entry.rank,
         name: entry.guild.name,
         country: entry.guild.country,

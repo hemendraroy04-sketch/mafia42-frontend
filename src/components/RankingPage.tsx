@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import HomeLink from "@/components/HomeLink";
 import PageHeader from "@/components/PageHeader";
 import NoData from "@/components/NoData";
@@ -7,13 +8,20 @@ import FullPageMessage from "@/components/FullPageMessage";
 import RankingRow from "@/components/RankingRow";
 import RankingSkeleton from "@/components/RankingSkeleton";
 import { useRanking } from "@/hooks/useRanking";
-import type { BaseRankingResponse, RankingRowData } from "@/types/ranking";
+import { api } from "@/lib/api";
+import type {
+  BaseRankingResponse,
+  GuildRankingDetails,
+  PlayerRankingDetails,
+  RankingRowData,
+} from "@/types/ranking";
 
 interface RankingPageProps<TResponse extends BaseRankingResponse> {
   title: string;
   endpoint: string;
   errorMessage: string;
-  /** Maps one API entry to the shape <RankingRow /> renders. */
+  detailType: "player" | "guild";
+  detailMode?: "rp" | "fame";
   toRow: (entry: TResponse["rankings"][number]) => RankingRowData;
 }
 
@@ -21,6 +29,8 @@ export default function RankingPage<TResponse extends BaseRankingResponse>({
   title,
   endpoint,
   errorMessage,
+  detailType,
+  detailMode,
   toRow,
 }: RankingPageProps<TResponse>) {
   const { data, loading, error, loadForDate } = useRanking<TResponse>(
@@ -28,9 +38,42 @@ export default function RankingPage<TResponse extends BaseRankingResponse>({
     errorMessage,
   );
 
-  // Only the very first load takes over the screen. After that the header
-  // stays mounted, so changing the date never blanks the page or drops focus.
-  if (loading && !data) return <FullPageMessage>Loading...</FullPageMessage>;
+  const [expandedId, setExpandedId] = useState<string | number | null>(null);
+
+  const [details, setDetails] = useState<
+    PlayerRankingDetails | GuildRankingDetails | null
+  >(null);
+
+  const handleRowClick = async (
+    id: string | number,
+    row: RankingRowData,
+  ) => {
+    if (expandedId === id) {
+      setExpandedId(null);
+      setDetails(null);
+      return;
+    }
+
+    try {
+      const detailsEndpoint = detailType === "player"
+        ? `/api/players/${row.name}`
+        : `/api/guilds/${row.name}`;
+
+      const result = await api<PlayerRankingDetails | GuildRankingDetails> (detailsEndpoint);
+
+      setDetails(result);
+      setExpandedId(id);
+    }
+    catch (error) {
+      console.error("Failed to fetch ranking details:", error);
+      setDetails(null);
+      setExpandedId(null);
+    }
+  };
+
+  if (loading && !data) {
+    return <FullPageMessage>Loading...</FullPageMessage>;
+  }
 
   let content;
 
@@ -51,8 +94,44 @@ export default function RankingPage<TResponse extends BaseRankingResponse>({
     content = (
       <div className="overflow-hidden rounded-xl border border-gray-300">
         {data.rankings.map((entry) => {
-          const { id, ...row } = toRow(entry);
-          return <RankingRow key={id} {...row} />;
+          const row = toRow(entry);
+
+          if (detailType === "player") {
+            return (
+              <RankingRow
+                key={row.id}
+                {...row}
+                detailType="player"
+                detailMode={detailMode}
+                expanded={expandedId === row.id}
+                onClick={() => handleRowClick(row.id, row)}
+                details={
+                  expandedId === row.id &&
+                  details &&
+                  "RPLbcount" in details
+                    ? details
+                    : null
+                }
+              />
+            );
+          }
+
+          return (
+            <RankingRow
+              key={row.id}
+              {...row}
+              detailType="guild"
+              expanded={expandedId === row.id}
+              onClick={() => handleRowClick(row.id, row)}
+              details={
+                expandedId === row.id &&
+                details &&
+                "GuildLbCount" in details
+                  ? details
+                  : null
+              }
+            />
+          );
         })}
       </div>
     );
@@ -66,7 +145,11 @@ export default function RankingPage<TResponse extends BaseRankingResponse>({
         <PageHeader
           title={title}
           date={data?.date}
-          onDateChange={loadForDate}
+          onDateChange={(date) => {
+            setExpandedId(null);
+            setDetails(null);
+            loadForDate(date);
+          }}
         />
 
         {content}
